@@ -21,6 +21,15 @@ public class Drive extends SubsystemBase {
       for (CANSparkMax spark : List.of(leftLeader, leftFollower, rightLeader, rightFollower)) {
 	    spark.restoreFactoryDefaults();
 	    spark.setIdleMode(IdleMode.kBrake);
+      }
+      leftEncoder.setPositionConversionFactor(DriveConstants.POSITION_FACTOR);
+      rightEncoder.setPositionConversionFactor(DriveConstants.POSITION_FACTOR);
+
+      leftEncoder.setVelocityConversionFactor(DriveConstants.VELOCITY_FACTOR);
+      rightEncoder.setVelocityConversionFactor(DriveConstants.VELOCITY_FACTOR);
+
+      leftEncoder.setPosition(0);
+      rightEncoder.setPosition(0);
     }
     
     rightFollower.follow(rightLeader);
