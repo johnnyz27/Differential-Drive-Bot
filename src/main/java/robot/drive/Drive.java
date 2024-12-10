@@ -8,6 +8,10 @@ import robot.Ports;
 
 public class Drive extends SubsystemBase {
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(FF.kS, FF.kV);
+    private final PIDController leftPIDController =
+      new PIDController(PID.kP, PID.kI, PID.kD);
+    private final PIDController rightPIDController =
+      new PIDController(PID.kP, PID.kI, PID.kD);
     private final CANSparkMax leftLeader = new CANSparkMax(Ports.Drive.LEFT_LEADER, MotorType.kBrushless);
     private final CANSparkMax leftFollower = new CANSparkMax(Ports.Drive.LEFT_FOLLOWER, MotorType.kBrushless);
     private final CANSparkMax rightLeader = new CANSparkMax(Ports.Drive.RIGHT_LEADER, MotorType.kBrushless);
