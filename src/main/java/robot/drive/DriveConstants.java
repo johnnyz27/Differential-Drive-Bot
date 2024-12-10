@@ -11,4 +11,9 @@ public class DriveConstants {
     public static final double kS = 1;
     public static final double kV = 3;
   }
+  public static final class PID {
+    public static final double kP = 8.5;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+  }
 }
