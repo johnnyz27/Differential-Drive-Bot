@@ -38,6 +38,19 @@ public class Drive extends SubsystemBase {
 
       leftEncoder.setPosition(0);
       rightEncoder.setPosition(0);
+
+      driveSim =
+        new DifferentialDrivetrainSim(
+            DCMotor.getMiniCIM(2),
+            DriveConstants.GEARING,
+            DriveConstants.MOI,
+            DriveConstants.DRIVE_MASS,
+            DriveConstants.WHEEL_RADIUS,
+            DriveConstants.TRACK_WIDTH,
+            DriveConstants.STD_DEVS);
+
+      driveSim.setInputs(leftVoltage, rightVoltage);
+
     }
     
     rightFollower.follow(rightLeader);
@@ -51,9 +64,23 @@ public class Drive extends SubsystemBase {
             0, 
             new Pose2d());
 
-    private void drive(double leftSpeed, double rightSpeed) {
-      leftLeader.set(leftSpeed);
-      rightLeader.set(rightSpeed);
+    public void drive(double leftSpeed, double rightSpeed) {
+	final double realLeftSpeed = leftSpeed * DriveConstants.MAX_SPEED;
+	final double realRightSpeed = rightSpeed * DriveConstants.MAX_SPEED;
+	
+      final double leftFeedforward = feedforward.calculate(realLeftSpeed);
+      final double rightFeedforward = feedforward.calculate(realRightSpeed);
+
+      final double leftPID = 
+        leftPIDController.calculate(leftEncoder.getVelocity(), realLeftSpeed);
+      final double rightPID = 
+        rightPIDController.calculate(rightEncoder.getVelocity(), realRightSpeed);
+	    
+      double leftVoltage = leftPID + leftFeedforward;
+      double rightVoltage = rightPID + rightFeedforward;
+
+      leftLeader.setVoltage(leftVoltage);
+      rightLeader.setVoltage(rightVoltage);
     }
     private void updateOdometry(Rotation2d rotation) {
       odometry.update(rotation, leftEncoder.getPosition(), rightEncoder.getPosition());
@@ -63,10 +90,19 @@ public class Drive extends SubsystemBase {
     }
     @Override 
     public void periodic() {
-      updateOdometry(gyro.getRotation2d());
+      updateOdometry(Robot.isReal() ? gyro.getRotation2d() :  
+							        driveSim.getHeading());
     }
 
     public Pose2d pose() {
       return odometry.getPoseMeters();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+      // sim.update() tells the simulation how much time has passed
+      driveSim.update(Constants.PERIOD.in(Seconds));
+      leftEncoder.setPosition(driveSim.getLeftPositionMeters());
+      rightEncoder.setPosition(driveSim.getRightPositionMeters());
     }
 }
