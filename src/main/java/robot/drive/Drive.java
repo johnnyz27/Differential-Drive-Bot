@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import robot.Ports;
 
 public class Drive extends SubsystemBase {
+	  @Log.NT 
+  private final Field2d field2d = new Field2d();
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(FF.kS, FF.kV);
     private final PIDController leftPIDController =
       new PIDController(PID.kP, PID.kI, PID.kD);
