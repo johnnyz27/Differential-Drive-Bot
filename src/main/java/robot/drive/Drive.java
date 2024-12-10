@@ -16,8 +16,11 @@ public class Drive extends SubsystemBase {
      private final RelativeEncoder leftEncoder = leftLeader.getEncoder();
      private final RelativeEncoder rightEncoder = rightLeader.getEncoder();
 
-	
+     private final AnalogGyro gyro = new AnalogGyro(Ports.Drive.GYRO_CHANNEL);
+
+     private final DifferentialDriveOdometry odometry;
     public Drive() {
+      gyro.reset();
       for (CANSparkMax spark : List.of(leftLeader, leftFollower, rightLeader, rightFollower)) {
 	    spark.restoreFactoryDefaults();
 	    spark.setIdleMode(IdleMode.kBrake);
@@ -36,13 +39,29 @@ public class Drive extends SubsystemBase {
     leftFollower.follow(leftLeader);
 
     leftLeader.setInverted(true);
-    
+
+    odometry = new DifferentialDriveOdometry(
+            new Rotation2d(), 
+            0, 
+            0, 
+            new Pose2d());
+
     private void drive(double leftSpeed, double rightSpeed) {
       leftLeader.set(leftSpeed);
       rightLeader.set(rightSpeed);
     }
-
+    private void updateOdometry(Rotation2d rotation) {
+      odometry.update(rotation, leftEncoder.getPosition(), rightEncoder.getPosition());
+    }
     public Command drive(DoubleSupplier vLeft, DoubleSupplier vRight) {
         return run(() -> drive(vLeft.getAsDouble(), vRight.getAsDouble()));
+    }
+    @Override 
+    public void periodic() {
+      updateOdometry(gyro.getRotation2d());
+    }
+
+    public Pose2d pose() {
+      return odometry.getPoseMeters();
     }
 }
