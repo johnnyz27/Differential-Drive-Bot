@@ -94,6 +94,7 @@ public class Drive extends SubsystemBase {
     public void periodic() {
       updateOdometry(Robot.isReal() ? gyro.getRotation2d() :  
 							        driveSim.getHeading());
+	        field2d.setRobotPose(pose());
     }
 
     public Pose2d pose() {
