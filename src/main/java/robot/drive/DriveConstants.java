@@ -6,4 +6,9 @@ public class DriveConstants {
   public static final double GEARING = 8.0;
   public static final double POSITION_FACTOR = CIRCUMFERENCE * GEARING;
   public static final double VELOCITY_FACTOR = POSITION_FACTOR / 60.0;
+
+  public static final class FF {
+    public static final double kS = 1;
+    public static final double kV = 3;
+  }
 }
